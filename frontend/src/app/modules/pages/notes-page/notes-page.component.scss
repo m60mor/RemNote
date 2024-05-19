@@ -1,0 +1,40 @@
+.notes-container {
+    background-color: #eee;
+    display: grid;
+    margin: auto;
+}
+
+.notes-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 50px 100px 50px 100px;
+    border: 1px solid #333;
+}
+
+.note {
+    width: 20%;
+    box-shadow: 0 0 5px 0 #333;
+    p {
+        padding: 10px;
+        border: 1px solid rgba($color: #000000, $alpha: 0.1);
+        margin: 0;
+    }
+}
+
+.note-header {
+    display: flex;
+    padding: 20px;
+    h2 {
+        flex: 1;
+        margin: 0;
+    }
+    button {
+        background-color: #633;
+        box-shadow: 0 0 5px 0 #333;
+        width: 30px;
+        height: 30px;
+        border: none;
+        color: white;
+    }
+}

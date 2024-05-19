@@ -1,0 +1,18 @@
+<div>
+    <div class="notes-container">
+        <div class="notes-header">
+            <h1>Notes</h1>
+            <button class="btn btn-primary" (click)="addNote()">Add Note</button>
+        </div>
+        <div class="notes-list">
+            <div *ngFor="let note of notes" class="note">
+                <div class="note-header">
+                    <h2>{{note[2]}}</h2>
+                    <button class="btn btn-danger" (click)="deleteNote()">X</button>
+                </div>
+                <p>{{ note[3] }}</p>
+            </div>
+        </div>
+    </div>
+    pies
+</div>

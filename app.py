@@ -1,6 +1,7 @@
 import os
-from flask import Flask, request
+from flask import Flask, request, make_response
 from dotenv import load_dotenv
+from flask_cors import CORS
 import psycopg2
 
 
@@ -34,6 +35,7 @@ connection = psycopg2.connect(dbname="db_remnote", user="postgres", password="12
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
+    CORS(app)
     app.config.from_mapping(
         SECRET_KEY='dev',
         # DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
@@ -48,6 +50,17 @@ def create_app(test_config=None):
         os.makedirs(app.instance_path)
     except OSError:
         pass
+
+    def _build_cors_preflight_response():
+        response = make_response()
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        response.headers.add("Access-Control-Allow-Headers", "*")
+        response.headers.add("Access-Control-Allow-Methods", "*")
+        return response
+
+    def _corsify_actual_response(response):
+        response.headers.add("Access-Control-Allow-Origin", "*")
+        return response
 
     @app.route('/')
     def home():
@@ -96,7 +109,7 @@ def create_app(test_config=None):
     @app.post('/notes/add')
     def add_note():
         data = request.get_json()
-        user_id= data["user_id"]
+        user_id = data["user_id"]
         title = data["title"]
         content = data["content"]
         date_added = data["date_added"]
