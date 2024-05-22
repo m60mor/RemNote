@@ -5,6 +5,10 @@ from flask_cors import CORS
 import psycopg2
 
 
+LOGIN = (
+    "SELECT id FROM users WHERE (email=%s or username=%s) and password=%s;"
+)
+
 LIST_USERS = (
     "SELECT * FROM users;"
 )
@@ -14,7 +18,7 @@ ADD_USER = (
 )
 
 DELETE_USER = (
-    "DELETE FROM users WHERE id = %s"
+    "DELETE FROM users WHERE id = %s;"
 )
 
 LIST_NOTES_USER = (
@@ -72,6 +76,18 @@ def create_app(test_config=None):
         with connection:
             with connection.cursor() as cursor:
                 cursor.execute(LIST_USERS)
+                data = cursor.fetchall()
+        return data
+
+    @app.post('/login')
+    def login_user():
+        data = request.get_json()
+        username = data["username"]
+        password = data["password"]
+        email = data["email"]
+        with connection:
+            with connection.cursor() as cursor:
+                cursor.execute(LOGIN, (email, username, password))
                 data = cursor.fetchall()
         return data
 

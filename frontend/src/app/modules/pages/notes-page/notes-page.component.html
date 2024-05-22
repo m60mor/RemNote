@@ -1,18 +1,36 @@
 <div>
+    <div class="modal-backdrop" [ngClass]="isModalShown ? 'show-backdrop' : ''" (click)="closeModal()"></div>
+    <div class="modal" [ngClass]="isAddModalShown ? 'show' : ''">
+        <div class="modal__header">
+            <h1>Dodaj Notatkę</h1>
+            <button class="btn-x" (click)="closeModal()">X</button>
+        </div>
+        <div class="modal__content">
+            <h3>Tytuł</h3>
+            <textarea></textarea>
+            <h3>Treść</h3>
+            <textarea></textarea>
+        </div>
+        <div class="modal__footer">
+            <button class="btn-confirm" (click)="addNote()">Dodaj</button>
+        </div>
+    </div>
+
+    <app-header></app-header>
     <div class="notes-container">
         <div class="notes-header">
-            <h1>Notes</h1>
-            <button class="btn btn-primary" (click)="addNote()">Add Note</button>
+            <h1>Twoje notatki</h1>
+            <button class="notes-header-button" (click)="showAddModal()">Add Note</button>
         </div>
+        <!-- <textarea [(ngModel)] = "someInput" (ngModelChange) = "changeHeader($event)"></textarea> -->
         <div class="notes-list">
-            <div *ngFor="let note of notes" class="note">
+            <div *ngFor="let note of notes; let i=index" class="note">
                 <div class="note-header">
-                    <h2>{{note[2]}}</h2>
-                    <button class="btn btn-danger" (click)="deleteNote()">X</button>
+                    <h2>{{note[2]}} {{i}}</h2>
+                    <button class="btn-x" (click)="deleteNote()">X</button>
                 </div>
                 <p>{{ note[3] }}</p>
             </div>
         </div>
     </div>
-    pies
 </div>
