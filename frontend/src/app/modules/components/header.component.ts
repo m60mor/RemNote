@@ -11,7 +11,12 @@ import { Router } from "@angular/router";
   imports: [CommonModule, RouterModule]
 })
 export class HeaderComponent {
+  router : Router = new Router();
   // constructor(private router: Router) {
   //   console.log("Header");
   // }
+  logOut() { 
+    localStorage.removeItem("jwt");
+    this.router.navigate(["/login"]);
+  }
 }

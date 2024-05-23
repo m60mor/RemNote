@@ -115,7 +115,7 @@ def create_app(test_config=None):
     # NOTES
     @app.get('/notes/user')
     def get_notes():
-        user_id = request.args.get("id")
+        user_id = request.headers.get('User-Id')
         with connection:
             with connection.cursor() as cursor:
                 cursor.execute(LIST_NOTES_USER, user_id)
@@ -124,8 +124,10 @@ def create_app(test_config=None):
 
     @app.post('/notes/add')
     def add_note():
+        user_id = request.headers.get('User-Id')
+        print(request.headers)
+        print(user_id)
         data = request.get_json()
-        user_id = data["user_id"]
         title = data["title"]
         content = data["content"]
         date_added = data["date_added"]
@@ -137,11 +139,12 @@ def create_app(test_config=None):
 
     @app.delete('/notes/delete')
     def delete_note():
+        user_id = request.headers.get('User-Id')
         data = request.get_json()
-        note_id = data["id"]
+        note_id = data["note_id"]
         with connection:
             with connection.cursor() as cursor:
-                cursor.execute(DELETE_NOTE, note_id)
+                cursor.execute(DELETE_NOTE, (user_id, note_id))
         return data
 
     @app.route('/hello')

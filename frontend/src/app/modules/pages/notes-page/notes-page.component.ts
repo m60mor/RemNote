@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { HeaderComponent } from '../../components/header.component';
 
 @Component({
@@ -11,45 +12,92 @@ import { HeaderComponent } from '../../components/header.component';
     imports: [CommonModule, FormsModule, HeaderComponent]
 })
 export class NotesPage {
-    url =  "http://127.0.0.1:5000/notes/user?id=1"
+    // url =  "http://127.0.0.1:5000/notes/user/"
     someInput = ''
-    colorWhite = true;
+    newNoteTitle = ''
+    newNoteContent = ''
     isAddModalShown = false;
     isModalShown = false;
-    
+    isDeleteModalShown = false;
+    selectedNoteId = -1;
+    jwt : string = ''
+
+    notes : any[][] = [["1", "1", "1", "1", "1", "1"]];
+    constructor() {
+        this.getUserId();
+        this.getNotes();
+    }
+
     changeHeader(e : any) {
         console.log(e);
     }
 
+    getUserId() {
+        const router = new Router();
+        var storedJwt = localStorage.getItem('jwt');
+        if (storedJwt == null) {
+            router.navigate(['/']);
+        }
+        else {
+            this.jwt = storedJwt;
+        }
+    }
+
     async getNotes() {
-        const response = await fetch(this.url);
+        const response = await fetch("http://127.0.0.1:5000/notes/user", {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'User-Id': this.jwt
+            }
+        
+        });
         const data = await response.json() ?? {};
+        this.notes = data;
         return data;
     }
     
-    notes : any[][] = [["1", "1", "1", "1", "1", "1"]];
-    constructor() {
-        this.getNotes().then(data => {
-            this.notes = data;
-            console.log(this.notes);
-         }
-        );
+    closeModal() {
+        this.isModalShown = false;
+        this.isAddModalShown = false;
+        this.newNoteTitle = ''
+        this.newNoteContent = ''
+        this.isDeleteModalShown = false;
+        this.selectedNoteId = -1;
     }
-
-
 
     showAddModal() {
         this.isAddModalShown = true;
         this.isModalShown = true;
     }
-    addNote() {
-        console.log('Note added');
+
+    async addNote() {
+        if (this.newNoteContent && this.newNoteTitle) {
+            const response = await fetch('http://127.0.0.1:5000/notes/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'User-Id': this.jwt
+                },
+                body: JSON.stringify({ title: this.newNoteTitle, content: this.newNoteContent, date_added: new Date().toISOString().slice(0, 19).replace('T', ' '), date_remind: new Date().toISOString().slice(0, 19).replace('T', ' ')})
+            }).then (response => {this.getNotes(); this.closeModal();});
+        }
     }
-    deleteNote() {
-        console.log('Note deleted');
+
+    showDeleteModal(noteId : number) {
+        this.isDeleteModalShown = true;
+        this.isModalShown = true;
+        this.selectedNoteId = noteId;
     }
-    closeModal() {
-        this.isAddModalShown = false;
-        this.isModalShown = false;
+
+    async deleteNote() {
+        const response = await fetch('http://127.0.0.1:5000/notes/delete', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'User-Id': this.jwt
+            },
+            body: JSON.stringify({ note_id: this.selectedNoteId })
+        }).then (response => {this.getNotes(); this.closeModal();});
     }
 }

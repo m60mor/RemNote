@@ -7,12 +7,25 @@
         </div>
         <div class="modal__content">
             <h3>Tytuł</h3>
-            <textarea></textarea>
+            <textarea [(ngModel)]="newNoteTitle"></textarea>
             <h3>Treść</h3>
-            <textarea></textarea>
+            <textarea [(ngModel)]="newNoteContent"></textarea>
         </div>
         <div class="modal__footer">
             <button class="btn-confirm" (click)="addNote()">Dodaj</button>
+        </div>
+    </div>
+
+    <div class="modal" [ngClass]="isDeleteModalShown ? 'show' : ''">
+        <div class="modal__header">
+            <h1>Usuń notatkę</h1>
+            <button class="btn-x" (click)="closeModal()">X</button>
+        </div>
+        <div class="modal__content">
+            <h3 class="info">Czy na pewno chcesz usunąć tę notatkę?</h3>
+        </div>
+        <div class="modal__footer">
+            <button class="btn-confirm" (click)="deleteNote()">Usuń</button>
         </div>
     </div>
 
@@ -26,8 +39,8 @@
         <div class="notes-list">
             <div *ngFor="let note of notes; let i=index" class="note">
                 <div class="note-header">
-                    <h2>{{note[2]}} {{i}}</h2>
-                    <button class="btn-x" (click)="deleteNote()">X</button>
+                    <h2>{{note[2]}}</h2>
+                    <button class="btn-x" (click)="showDeleteModal(note[0])">X</button>
                 </div>
                 <p>{{ note[3] }}</p>
             </div>
