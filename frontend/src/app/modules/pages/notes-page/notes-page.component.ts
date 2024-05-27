@@ -28,8 +28,8 @@ export class NotesPage {
         this.getNotes();
     }
 
-    changeHeader(e : any) {
-        console.log(e);
+    printChildEvent(e: any) {
+        alert(e);
     }
 
     getUserId() {
@@ -54,6 +54,14 @@ export class NotesPage {
         });
         const data = await response.json() ?? {};
         this.notes = data;
+        for (let i in this.notes) {
+            if (this.notes[i][2].length > 50) { 
+                this.notes[i][2] = this.notes[i][2].slice(0, 50) + '...'
+            }
+            if (this.notes[i][3].length > 300) {
+                this.notes[i][3] = this.notes[i][3].slice(0, 300) + '...';
+            }
+        }
         return data;
     }
     

@@ -36,13 +36,15 @@
             <button class="notes-header-button" (click)="showAddModal()">Add Note</button>
         </div>
         <!-- <textarea [(ngModel)] = "someInput" (ngModelChange) = "changeHeader($event)"></textarea> -->
-        <div class="notes-list">
-            <div *ngFor="let note of notes; let i=index" class="note">
-                <div class="note-header">
-                    <h2>{{note[2]}}</h2>
-                    <button class="btn-x" (click)="showDeleteModal(note[0])">X</button>
+        <div class="notes-list-container">
+            <div class="notes-list">
+                <div *ngFor="let note of notes; let i=index" class="note">
+                    <div class="note-header">
+                        <h2>{{note[2]}}</h2>
+                        <button class="btn-x" (click)="showDeleteModal(note[0])">X</button>
+                    </div>
+                    <p>{{ note[3] }}</p>
                 </div>
-                <p>{{ note[3] }}</p>
             </div>
         </div>
     </div>
