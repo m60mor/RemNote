@@ -16,6 +16,7 @@ export class NotesPage {
     someInput = ''
     newNoteTitle = ''
     newNoteContent = ''
+    newNoteReminder = ''
     isAddModalShown = false;
     isModalShown = false;
     isDeleteModalShown = false;
@@ -70,6 +71,7 @@ export class NotesPage {
         this.isAddModalShown = false;
         this.newNoteTitle = ''
         this.newNoteContent = ''
+        this.newNoteReminder = ''
         this.isDeleteModalShown = false;
         this.selectedNoteId = -1;
     }
@@ -80,14 +82,22 @@ export class NotesPage {
     }
 
     async addNote() {
-        if (this.newNoteContent && this.newNoteTitle) {
+        console.log(this.newNoteContent);
+        console.log(this.newNoteReminder);
+        console.log(Intl.DateTimeFormat().resolvedOptions().timeZone);
+        var offset = -(new Date().getTimezoneOffset() / 60)
+        var sign = '+'
+        offset < 0 ? sign = '-' : sign = '+'
+        var formattedOffset = String(offset).padStart(2, '0')
+        var dateRemind = this.newNoteReminder.replace('T', ' ') + ':00' + sign + formattedOffset;
+        if (this.newNoteContent && this.newNoteTitle && this.newNoteReminder) {
             const response = await fetch('http://127.0.0.1:5000/notes/add', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'User-Id': this.jwt
                 },
-                body: JSON.stringify({ title: this.newNoteTitle, content: this.newNoteContent, date_added: new Date().toISOString().slice(0, 19).replace('T', ' '), date_remind: new Date().toISOString().slice(0, 19).replace('T', ' ')})
+                body: JSON.stringify({ title: this.newNoteTitle, content: this.newNoteContent, date_added: new Date().toISOString().slice(0, 19).replace('T', ' '), date_remind: dateRemind})
             }).then (response => {this.getNotes(); this.closeModal();});
         }
     }

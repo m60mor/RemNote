@@ -1,50 +1,50 @@
-<div>
-    <div class="modal-backdrop" [ngClass]="isModalShown ? 'show-backdrop' : ''" (click)="closeModal()"></div>
-    <div class="modal" [ngClass]="isAddModalShown ? 'show' : ''">
-        <div class="modal__header">
-            <h1>Dodaj Notatkę</h1>
-            <button class="btn-x" (click)="closeModal()">X</button>
-        </div>
-        <div class="modal__content">
-            <h3>Tytuł</h3>
-            <textarea [(ngModel)]="newNoteTitle"></textarea>
-            <h3>Treść</h3>
-            <textarea [(ngModel)]="newNoteContent"></textarea>
-        </div>
-        <div class="modal__footer">
-            <button class="btn-confirm" (click)="addNote()">Dodaj</button>
-        </div>
+<div class="modal-backdrop" [ngClass]="isModalShown ? 'show-backdrop' : ''" (click)="closeModal()"></div>
+<div class="modal" [ngClass]="isAddModalShown ? 'show' : ''">
+    <div class="modal__header">
+        <h1 class="modal__header__title">Dodaj Notatkę</h1>
+        <button class="modal__header__close btn-x" (click)="closeModal()">&#10005;</button>
     </div>
-
-    <div class="modal" [ngClass]="isDeleteModalShown ? 'show' : ''">
-        <div class="modal__header">
-            <h1>Usuń notatkę</h1>
-            <button class="btn-x" (click)="closeModal()">X</button>
-        </div>
-        <div class="modal__content">
-            <h3 class="info">Czy na pewno chcesz usunąć tę notatkę?</h3>
-        </div>
-        <div class="modal__footer">
-            <button class="btn-confirm" (click)="deleteNote()">Usuń</button>
-        </div>
+    <div class="modal__content">
+        <h3>Tytuł</h3>
+        <textarea [(ngModel)]="newNoteTitle"></textarea>
+        <h3>Treść</h3>
+        <textarea [(ngModel)]="newNoteContent"></textarea>
+        <h3>Przypomnij</h3>
+        <input type="datetime-local" [(ngModel)]="newNoteReminder"/>
     </div>
+    <div class="modal__footer">
+        <button class="btn-confirm" (click)="addNote()">Dodaj</button>
+    </div>
+</div>
 
-    <app-header></app-header>
-    <div class="notes-container">
-        <div class="notes-header">
-            <h1>Twoje notatki</h1>
-            <button class="notes-header-button" (click)="showAddModal()">Add Note</button>
-        </div>
-        <!-- <textarea [(ngModel)] = "someInput" (ngModelChange) = "changeHeader($event)"></textarea> -->
-        <div class="notes-list-container">
-            <div class="notes-list">
-                <div *ngFor="let note of notes; let i=index" class="note">
-                    <div class="note-header">
-                        <h2>{{note[2]}}</h2>
-                        <button class="btn-x" (click)="showDeleteModal(note[0])">X</button>
-                    </div>
-                    <p>{{ note[3] }}</p>
+<div class="modal" [ngClass]="isDeleteModalShown ? 'show' : ''">
+    <div class="modal__header">
+        <h1 class="modal__header__title">Usuń notatkę</h1>
+        <button class="modal__header__close btn-x" (click)="closeModal()">&#10005;</button>
+    </div>
+    <div class="modal__content">
+        <h3 class="info">Czy na pewno chcesz usunąć tę notatkę?</h3>
+    </div>
+    <div class="modal__footer">
+        <button class="btn-confirm" (click)="deleteNote()">Usuń</button>
+    </div>
+</div>
+
+<app-header></app-header>
+<div class="notes-container">
+    <div class="notes-header">
+        <h1>Twoje notatki</h1>
+        <button class="notes-header-button" (click)="showAddModal()">Dodaj</button>
+    </div>
+    <!-- <textarea [(ngModel)] = "someInput" (ngModelChange) = "changeHeader($event)"></textarea> -->
+    <div class="notes-list-container">
+        <div class="notes-list">
+            <div *ngFor="let note of notes; let i=index" class="note">
+                <div class="note-header">
+                    <h2>{{note[2]}}</h2>
+                    <button class="btn-x" (click)="showDeleteModal(note[0])">&#10005;</button>
                 </div>
+                <p>{{ note[3] }}</p>
             </div>
         </div>
     </div>

@@ -132,6 +132,7 @@ def create_app(test_config=None):
         content = data["content"]
         date_added = data["date_added"]
         date_remind = data["date_remind"]
+        print(date_remind)
         with connection:
             with connection.cursor() as cursor:
                 cursor.execute(ADD_NOTE, (user_id, title, content, date_added, date_remind))
