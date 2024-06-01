@@ -33,6 +33,10 @@ DELETE_NOTE = (
     "DELETE FROM notes WHERE user_id = %s and note_id = %s;"
 )
 
+EDIT_NOTE = (
+    "UPDATE notes SET title = %s, content = %s, date_remind = %s WHERE user_id = %s and note_id = %s"
+)
+
 load_dotenv()
 url = os.getenv("DATABASE_URL")
 connection = psycopg2.connect(dbname="db_remnote", user="postgres", password="1234", host=url, port=5432)
@@ -125,8 +129,6 @@ def create_app(test_config=None):
     @app.post('/notes/add')
     def add_note():
         user_id = request.headers.get('User-Id')
-        print(request.headers)
-        print(user_id)
         data = request.get_json()
         title = data["title"]
         content = data["content"]
@@ -146,6 +148,20 @@ def create_app(test_config=None):
         with connection:
             with connection.cursor() as cursor:
                 cursor.execute(DELETE_NOTE, (user_id, note_id))
+        return data
+
+    @app.put('/notes/edit')
+    def change_note():
+        user_id = request.headers.get('User-Id')
+        data = request.get_json()
+        print(data)
+        note_id = data["note_id"]
+        title = data["title"]
+        content = data["content"]
+        date_remind = data["date_remind"]
+        with connection:
+            with connection.cursor() as cursor:
+                cursor.execute(EDIT_NOTE, (title, content, date_remind, user_id, note_id))
         return data
 
     @app.route('/hello')
