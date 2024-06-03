@@ -27,8 +27,10 @@ export class NotesPage {
     isEditModalShown = false;
     selectedNoteId = 0;
     jwt : string = ''
+    search = '';
 
     notes : any[][] = [["1", "1", "1", "1", "1", "1"]];
+    displayedNotes : any[][] = [["1", "1", "1", "1", "1", "1"]];
     constructor() {
         this.getUserId();
         this.getNotes();
@@ -122,9 +124,14 @@ export class NotesPage {
                     this.notes[i][3] = this.notes[i][3].slice(0, 300) + '...';
                 }
             }
+            this.displayedNotes = this.notes;
         } catch (error) {
             console.error('There has been a problem with your fetch operation:', error);
         }
+    }
+
+    searchNotes(event : any) {
+        this.displayedNotes = this.notes.filter(note => ((note[2]).toLowerCase().includes(event.toLowerCase()) || (note[3]).toLowerCase().includes(event.toLowerCase())));
     }
     
     closeModal() {

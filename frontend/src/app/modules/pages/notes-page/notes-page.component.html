@@ -51,13 +51,13 @@
 <app-header></app-header>
 <div class="notes-container">
     <div class="notes-header">
-        <h1>Twoje notatki</h1>
+        <input class="notes-header-search" [(ngModel)]="search" (ngModelChange)="searchNotes($event)"/>
         <button class="notes-header-button" (click)="showAddModal()">Dodaj</button>
     </div>
     <!-- <textarea [(ngModel)] = "someInput" (ngModelChange) = "changeHeader($event)"></textarea> -->
     <div class="notes-list-container">
         <div class="notes-list">
-            <div *ngFor="let note of notes; let i=index" class="note">
+            <div *ngFor="let note of displayedNotes; let i=index" class="note">
                 <div class="note-header" (click)="showEditModal(i, note[0])">
                     <h2 (click)="stopPropagation($event)">{{note[2]}}</h2>
                     <button class="btn-x" (click)="stopPropagation($event); showDeleteModal(note[0])">&#10005;</button>
