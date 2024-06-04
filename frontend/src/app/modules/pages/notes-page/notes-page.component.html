@@ -51,12 +51,13 @@
 <app-header></app-header>
 <div class="notes-container">
     <div class="notes-header">
-        <input class="notes-header-search" [(ngModel)]="search" (ngModelChange)="searchNotes($event)"/>
+        <input class="notes-header-search" [(ngModel)]="search" (ngModelChange)="searchNotes()"/>
         <button class="notes-header-button" (click)="showAddModal()">Dodaj</button>
     </div>
     <!-- <textarea [(ngModel)] = "someInput" (ngModelChange) = "changeHeader($event)"></textarea> -->
     <div class="notes-list-container">
         <div class="notes-list">
+            <h1 class="notes-list-empty" *ngIf="isNoteListEmpty">Brak notatek do wyświetlenia</h1>
             <div *ngFor="let note of displayedNotes; let i=index" class="note">
                 <div class="note-header" (click)="showEditModal(i, note[0])">
                     <h2 (click)="stopPropagation($event)">{{note[2]}}</h2>

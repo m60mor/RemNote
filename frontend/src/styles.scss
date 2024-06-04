@@ -1,5 +1,11 @@
 :root {
-    background: linear-gradient(270deg, rgba($color: #8ac, $alpha: 0.5), rgba($color: #ac8, $alpha: 0.5) 70%);
+    // background: linear-gradient(270deg, rgba($color: #8ac, $alpha: 0.5), rgba($color: #ac8, $alpha: 0.5) 70%);
+    // background: #26a;
+    background-image: url('./background.svg');
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-size: cover;
+    -moz-background-size: cover;
 }
 
 body {

@@ -4,6 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { HeaderComponent } from '../../components/header.component';
 import { parse } from 'path';
+import { Observable, from } from 'rxjs';
+import { map } from 'rxjs/operators';
 
 @Component({
     // selector: 'notes-page',
@@ -31,24 +33,38 @@ export class NotesPage {
 
     notes : any[][] = [["1", "1", "1", "1", "1", "1"]];
     displayedNotes : any[][] = [["1", "1", "1", "1", "1", "1"]];
+    isNoteListEmpty = false;
+
+    searchObserver = {
+        next: (val : any) => { 
+            this.isNoteListEmpty = false;
+            this.displayedNotes = val;
+        },
+        error: (err: any) => { 
+            this.isNoteListEmpty = true;
+            this.displayedNotes = [];
+         },
+        complete: () => { console.log(`Search observer completed`) }
+    }
+
+    searchObservable = new Observable((subscriber) => {
+        subscriber.next(this.notes);
+    }).pipe(
+        map((val : any) => {
+            return val.filter((note : any) => ((note[2]).toLowerCase().includes(this.search.toLowerCase()) || (note[3]).toLowerCase().includes(this.search.toLowerCase()))); 
+        }),
+        map((val : any) => {
+            console.log(val);
+            if (val.length == 0) {
+                throw new Error('No notes found');
+            }
+            return val;
+        })
+    );
+
     constructor() {
         this.getUserId();
         this.getNotes();
-    }
-
-    printChildEvent(e: any) {
-        alert(e);
-    }
-
-    getUserId() {
-        const router = new Router();
-        var storedJwt = localStorage.getItem('jwt');
-        if (storedJwt == null) {
-            router.navigate(['/']);
-        }
-        else {
-            this.jwt = storedJwt;
-        }
     }
 
     async getNotes() {
@@ -128,10 +144,22 @@ export class NotesPage {
         } catch (error) {
             console.error('There has been a problem with your fetch operation:', error);
         }
+        this.searchNotes();
     }
 
-    searchNotes(event : any) {
-        this.displayedNotes = this.notes.filter(note => ((note[2]).toLowerCase().includes(event.toLowerCase()) || (note[3]).toLowerCase().includes(event.toLowerCase())));
+    getUserId() {
+        const router = new Router();
+        var storedJwt = localStorage.getItem('jwt');
+        if (storedJwt == null) {
+            router.navigate(['/']);
+        }
+        else {
+            this.jwt = storedJwt;
+        }
+    }
+
+    searchNotes() {
+        this.searchObservable.subscribe(this.searchObserver);
     }
     
     closeModal() {
@@ -213,7 +241,6 @@ export class NotesPage {
 
     async editNote() {
         let dateRemind = this.toDatabaseDate(this.editNoteReminder);
-        console.log(this.editNoteReminder);
         const response = await fetch('http://127.0.0.1:5000/notes/edit', {
             method: 'PUT',
             headers: {

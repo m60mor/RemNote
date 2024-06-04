@@ -7,18 +7,19 @@
 
 .notes-container {
     flex: 1;
-    background: rgba($color: #fff, $alpha: 0.5);
+    background: rgba($color: #fff, $alpha: 0.7);
     display: flex;
     flex-direction: column;
     margin: 2%;
 }
 
 .notes-header {
-    background: linear-gradient(45deg, #8ab 5%, #acd 80%);
+    background: linear-gradient(45deg, #47b 5%, #8ae 80%);
     display: grid;
     justify-items: center;
     align-items: center;
     grid-template-columns: 1fr 7fr 1fr;
+    row-gap: 10px;
     height: 80px;
     padding: 0 30px 0 30px;
     border-bottom: 1px solid rgba($color: #fff, $alpha: 0.2);
@@ -59,15 +60,24 @@
 
 .notes-list-container {
     flex: 1;
-    margin: 30px;
-    padding: 10px;
-    border-radius: 5px;
+    // margin: 30px;
+    // padding: 10px;
+    // border-radius: 5px;
 }
 
 .notes-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 5px;
+    padding: 30px;
+}
+
+.notes-list-empty {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: rgba($color: #000, $alpha: 0.5);
 }
 
 .note {
@@ -87,7 +97,7 @@
 }
 
 .note-header {
-    background: #99b;
+    background: #8ae;
     display: flex;
     align-items: center;
     padding: 15px;
@@ -104,9 +114,18 @@
     font-size: 15px;
 }
 
-@media screen and (max-width: 600px){
+@media screen and (max-width: 610px){
     .notes-container {
         margin: 0;
+    }
+
+    .notes-header {
+        grid-template-columns: 0fr 7fr 7fr;
+    }
+
+    .notes-header-button {
+        justify-self: flex-end;
+        width: 50%;
     }
 
     .notes-list-container {
@@ -122,6 +141,10 @@
         h2 {
             font-size: 20px;
         }
+    }
+
+    .notes-header-search {
+        width: 200px;
     }
 
     .note {
@@ -152,10 +175,11 @@
     position: absolute;
     background: #fff;
     box-shadow: 0 0 10px #000;
-    min-width: 320px;
-    max-width: 500px;
     left: 0;
     right: 0;
+    z-index: 1;
+    min-width: 320px;
+    max-width: 500px;
     margin: auto;
     transition: all 0.4s;
     transform: translateY(-120%);
@@ -173,12 +197,12 @@
 }
 
 .modal__header {
-    background: #ab8;
+    background: #8ae;
     display: grid;
     justify-items: center;
     align-items: center;
     grid-template-columns: 50px 1fr 70px;
-    border-bottom: 1px solid rgba($color: #000, $alpha: 0.1);
+    // border-bottom: 1px solid rgba($color: #000, $alpha: 0.1);
     color: #fff;
     .modal__header__title {
         grid-area: 1/ 2;
@@ -218,7 +242,7 @@
 }
 
 .btn-confirm {
-    background: #ab8;
+    background: #8ae;
     width: 150px;
     height: 40px;
     border: none;
@@ -227,8 +251,7 @@
     font-size: 17px;
     transition: all 0.3s;
     &:hover {
-        background: #cda;
-        // border: 1px solid rgba($color: #000, $alpha: 0.1);
+        background: rgba($color: #8ae, $alpha: 0.7);
         color: rgba($color: #000, $alpha: 0.5)
     }
 }
