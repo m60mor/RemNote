@@ -1,12 +1,12 @@
 import os
-from flask import Flask, request, make_response
+from flask import Flask, request, make_response, jsonify
 from dotenv import load_dotenv
 from flask_cors import CORS
 import psycopg2
 
 
 LOGIN = (
-    "SELECT id FROM users WHERE (email=%s or username=%s) and password=%s;"
+    "SELECT id FROM users WHERE email=%s and username=%s and password=%s;"
 )
 
 LIST_USERS = (
@@ -86,83 +86,115 @@ def create_app(test_config=None):
     @app.post('/login')
     def login_user():
         data = request.get_json()
-        username = data["username"]
-        password = data["password"]
-        email = data["email"]
-        with connection:
-            with connection.cursor() as cursor:
-                cursor.execute(LOGIN, (email, username, password))
-                data = cursor.fetchall()
-        return data
+        if "username" in data and "email" in data and "password" in data:
+            username = data["username"]
+            password = data["password"]
+            email = data["email"]
+            with connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(LOGIN, (email, username, password))
+                    ret_data = cursor.fetchall()
+            if ret_data:
+                return ret_data
+        else:
+            return jsonify({'message': 'Missing values in request'}), 400
+
+        return jsonify({'message': 'Invalid username or password'}), 401
 
     @app.post('/users/add')
     def add_user():
         data = request.get_json()
-        username = data["username"]
-        password = data["password"]
-        email = data["email"]
-        date_created = data["date_created"]
-        with connection:
-            with connection.cursor() as cursor:
-                cursor.execute(ADD_USER, (username, password, email, date_created))
-        return data
+        if "username" in data and "email" in data and "password" in data and "date_created" in data:
+            username = data["username"]
+            password = data["password"]
+            email = data["email"]
+            date_created = data["date_created"]
+            with connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(ADD_USER, (username, password, email, date_created))
+            return data
+        else:
+            return jsonify({'message': 'Missing values in request'}), 400
 
     @app.delete('/users/delete')
     def delete_user():
         data = request.get_json()
-        user_id = data["id"]
-        with connection:
-            with connection.cursor() as cursor:
-                cursor.execute(DELETE_USER, user_id)
-        return data
+        if "id" in data:
+            user_id = data["id"]
+            with connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(DELETE_USER, user_id)
+            return data
+        else:
+            return jsonify({'message': 'Missing values in request'}), 400
 
     # NOTES
     @app.get('/notes/user')
     def get_notes():
-        user_id = request.headers.get('User-Id')
-        with connection:
-            with connection.cursor() as cursor:
-                cursor.execute(LIST_NOTES_USER, user_id)
-                data = cursor.fetchall()
-        return data
+        if request.headers.get('User-Id') is not None:
+            user_id = request.headers.get('User-Id')
+            with connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(LIST_NOTES_USER, user_id)
+                    data = cursor.fetchall()
+            return data
+        else:
+            return jsonify({'Message': 'Missing token in header'}), 401
 
     @app.post('/notes/add')
     def add_note():
-        user_id = request.headers.get('User-Id')
-        data = request.get_json()
-        title = data["title"]
-        content = data["content"]
-        date_added = data["date_added"]
-        date_remind = data["date_remind"]
-        print(date_remind)
-        with connection:
-            with connection.cursor() as cursor:
-                cursor.execute(ADD_NOTE, (user_id, title, content, date_added, date_remind))
-        return data
+        if request.headers.get('User-Id') is not None:
+            user_id = request.headers.get('User-Id')
+            data = request.get_json()
+            if "title" in data and "content" in data and "date_added" in data and "date_remind" in data:
+                title = data["title"]
+                content = data["content"]
+                date_added = data["date_added"]
+                date_remind = data["date_remind"]
+                print(date_remind)
+                with connection:
+                    with connection.cursor() as cursor:
+                        cursor.execute(ADD_NOTE, (user_id, title, content, date_added, date_remind))
+                return data
+            else:
+                return jsonify({'message': 'Missing values in request'}), 400
+        else:
+            return jsonify({'Message': 'Missing token in header'}), 401
 
     @app.delete('/notes/delete')
     def delete_note():
-        user_id = request.headers.get('User-Id')
-        data = request.get_json()
-        note_id = data["note_id"]
-        with connection:
-            with connection.cursor() as cursor:
-                cursor.execute(DELETE_NOTE, (user_id, note_id))
-        return data
+        if request.headers.get('User-Id') is not None:
+            user_id = request.headers.get('User-Id')
+            data = request.get_json()
+            if "note_id" in data:
+                note_id = data["note_id"]
+                with connection:
+                    with connection.cursor() as cursor:
+                        cursor.execute(DELETE_NOTE, (user_id, note_id))
+                return data
+            else:
+                return jsonify({'message': 'Missing values in request'}), 400
+        else:
+            return jsonify({'Message': 'Missing token in header'}), 401
 
     @app.put('/notes/edit')
     def change_note():
-        user_id = request.headers.get('User-Id')
-        data = request.get_json()
-        print(data)
-        note_id = data["note_id"]
-        title = data["title"]
-        content = data["content"]
-        date_remind = data["date_remind"]
-        with connection:
-            with connection.cursor() as cursor:
-                cursor.execute(EDIT_NOTE, (title, content, date_remind, user_id, note_id))
-        return data
+        if request.headers.get('User-Id') is not None:
+            user_id = request.headers.get('User-Id')
+            data = request.get_json()
+            if "title" in data and "content" in data and "date_remind" in data:
+                note_id = data["note_id"]
+                title = data["title"]
+                content = data["content"]
+                date_remind = data["date_remind"]
+                with connection:
+                    with connection.cursor() as cursor:
+                        cursor.execute(EDIT_NOTE, (title, content, date_remind, user_id, note_id))
+                return data
+            else:
+                return jsonify({'message': 'Missing values in request'}), 400
+        else:
+            return jsonify({'Message': 'Missing token in header'}), 401
 
     @app.route('/hello')
     def hello():

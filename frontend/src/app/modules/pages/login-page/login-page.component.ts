@@ -24,15 +24,16 @@ export class LoginPage {
     }
 
     isSubmitted = false;
+    invalidParameters = false;
     jwt : any = ''
     emailValidator() {
-        return this.loginForm.get('email')?.invalid && this.isSubmitted;
+        return ((this.loginForm.get('email')?.invalid && this.isSubmitted) || this.invalidParameters);
     }
     usernameValidator() {
-        return this.loginForm.get('username')?.invalid && this.isSubmitted;
+        return ((this.loginForm.get('username')?.invalid && this.isSubmitted) || this.invalidParameters);
     }
     passwordValidator() {
-        return this.loginForm.get('password')?.invalid && this.isSubmitted;
+        return ((this.loginForm.get('password')?.invalid && this.isSubmitted) || this.invalidParameters);
     }
 
     //(this.loginForm.get('email')?.dirty || this.loginForm.get('email')?.touched || this.isSubmitted)
@@ -40,26 +41,41 @@ export class LoginPage {
     async login() {
         this.isSubmitted = true;
         if (this.loginForm.invalid) {
-            console.log('Invalid form');
+            console.error('Invalid form');
         }
         else {
-            const response = await fetch('http://127.0.0.1:5000/login', {
-                method: 'POST', 
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({email: this.loginForm.value.email ,username: this.loginForm.value.username, password: this.loginForm.value.password})
-            }).then(response => response.json())
-            .then(data => {
-                if (data?.[0]?.[0]) {
-                    this.jwt = data?.[0]?.[0];
-                    console.log('JWT:', this.jwt);
-                    localStorage.setItem('jwt', this.jwt);
-                    this.router.navigate(['/notes']);
-                }})
-            .catch((error) => { 
-                console.error('Error:', error);
-            });
+            try {
+                const response = await fetch('http://127.0.0.1:5000/login', {
+                    method: 'POST', 
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: this.loginForm.value.email,
+                        username: this.loginForm.value.username,
+                        password: this.loginForm.value.password
+                    })
+                });
+    
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        console.error('Unauthorized: Invalid credentials');
+                        this.invalidParameters = true;
+                    } else {
+                        console.error('HTTP Error:', response.status, response.statusText);
+                    }
+                } else {
+                    const data = await response.json();
+                    if (data?.[0]?.[0]) {
+                        this.jwt = data?.[0]?.[0];
+                        console.log('JWT:', this.jwt);
+                        localStorage.setItem('jwt', this.jwt);
+                        this.router.navigate(['/notes']);
+                    }
+                }
+            } catch (error) {
+                console.error('Network Error:', error);
+            }
         }
     }
 }

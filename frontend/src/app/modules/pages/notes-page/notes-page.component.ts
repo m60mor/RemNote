@@ -81,7 +81,7 @@ export class NotesPage {
                 throw new Error('Network response was not ok' + response.statusText);
             }
             const data = await response.json();
-            this.notes = data;
+            this.notes = data.sort((a: any, b: any) => new Date(b[4]).getTime() - new Date(a[4]).getTime());
             let offset = -(new Date().getTimezoneOffset() / 60);
             let offsetHours = Math.floor(offset);
             let offsetMinutes = Math.round((offset - offsetHours) * 60);
