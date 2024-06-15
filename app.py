@@ -1,12 +1,23 @@
 import os
-from flask import Flask, request, make_response, jsonify
+from flask import Flask, request, make_response, jsonify, url_for, render_template
 from dotenv import load_dotenv
 from flask_cors import CORS
+from flask_mail import Mail, Message
 import psycopg2
+from psycopg2 import Error
+from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 
+
+REGISTER = (
+    "INSERT INTO USERS (username, password, email, confirmed) VALUES (%s, %s, %s, false)"
+)
 
 LOGIN = (
     "SELECT id FROM users WHERE email=%s and username=%s and password=%s;"
+)
+
+CONFIRM_REGISTER = (
+    "UPDATE USERS SET confirmed=true WHERE email=%s"
 )
 
 LIST_USERS = (
@@ -14,7 +25,7 @@ LIST_USERS = (
 )
 
 ADD_USER = (
-    "INSERT INTO users (username, password, email, date_created) VALUES (%s, %s, %s, %s);"
+    "INSERT INTO users (username, password, email, date_created, confirmed) VALUES (%s, %s, %s, %s, false);"
 )
 
 DELETE_USER = (
@@ -43,21 +54,32 @@ connection = psycopg2.connect(dbname="db_remnote", user="postgres", password="12
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
+    app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+    app.config['MAIL_USERNAME'] = ''
+    app.config['MAIL_PASSWORD'] = ''
+    app.config['MAIL_PORT'] = 465
+    app.config['MAIL_USE_SSL'] = True
+    app.config['MAIL_USE_TLS'] = False
     CORS(app)
-    app.config.from_mapping(
-        SECRET_KEY='dev',
-        # DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
-    )
 
-    if test_config is None:
-        app.config.from_pyfile('config.py', silent=True)
-    else:
-        app.config.from_mapping(test_config)
+    server_email = ''
+    # app.config.from_mapping(
+    #     SECRET_KEY='dev',
+    #     # DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
+    # )
 
-    try:
-        os.makedirs(app.instance_path)
-    except OSError:
-        pass
+    # if test_config is None:
+    # else:
+    #     app.config.from_mapping(test_config)
+    #
+    # try:
+    #     os.makedirs(app.instance_path)
+    # except OSError:
+    #     pass
+
+    app.config.from_pyfile('config.cfg')
+    mail = Mail(app)
+    s = URLSafeTimedSerializer('SecretKey')
 
     def _build_cors_preflight_response():
         response = make_response()
@@ -74,7 +96,6 @@ def create_app(test_config=None):
     def home():
         return 'a'
 
-    # USERS
     @app.get('/users')
     def get_users():
         with connection:
@@ -82,6 +103,44 @@ def create_app(test_config=None):
                 cursor.execute(LIST_USERS)
                 data = cursor.fetchall()
         return data
+
+    @app.post('/register')
+    def register_user():
+        data = request.get_json()
+        if "username" in data and "email" in data and "password" in data:
+            username = data["username"]
+            password = data["password"]
+            email = data["email"]
+            token = s.dumps(email, salt='email-confirm')
+            link = url_for('confirm_email', token=token, _external=True)
+            html_content = render_template('confirmation_email.html', link=link)
+            msg = Message('Confirm email', sender=server_email, recipients=[email], html=html_content)
+            try:
+                with connection:
+                    with connection.cursor() as cursor:
+                        cursor.execute(REGISTER, (username, password, email))
+                mail.send(msg)
+                return jsonify({'message': 'Added user, confirmation email sent!'}), 200
+            except Error as e:
+                return jsonify({'message': str(e)}), 400
+        else:
+            return jsonify({'message': 'Missing values in request'}), 400
+
+        return jsonify({'message': 'Invalid username or password'}), 401
+
+    @app.get('/confirm_email/<token>')
+    def confirm_email(token):
+        try:
+            email = s.loads(token, salt='email-confirm', max_age=300)
+        except SignatureExpired:
+            return '<h1>Token expired<h1>'
+        try:
+            with connection:
+                with connection.cursor() as cursor:
+                    cursor.execute(CONFIRM_REGISTER, (email, ))
+            return jsonify({'message': 'Confirmed User!'}), 200
+        except Error as e:
+            return jsonify({'message': str(e)}), 400
 
     @app.post('/login')
     def login_user():
@@ -123,7 +182,7 @@ def create_app(test_config=None):
             user_id = data["id"]
             with connection:
                 with connection.cursor() as cursor:
-                    cursor.execute(DELETE_USER, user_id)
+                    cursor.execute(DELETE_USER, (user_id,))
             return data
         else:
             return jsonify({'message': 'Missing values in request'}), 400
@@ -135,7 +194,7 @@ def create_app(test_config=None):
             user_id = request.headers.get('User-Id')
             with connection:
                 with connection.cursor() as cursor:
-                    cursor.execute(LIST_NOTES_USER, user_id)
+                    cursor.execute(LIST_NOTES_USER, (user_id,))
                     data = cursor.fetchall()
             return data
         else:
@@ -151,7 +210,6 @@ def create_app(test_config=None):
                 content = data["content"]
                 date_added = data["date_added"]
                 date_remind = data["date_remind"]
-                print(date_remind)
                 with connection:
                     with connection.cursor() as cursor:
                         cursor.execute(ADD_NOTE, (user_id, title, content, date_added, date_remind))

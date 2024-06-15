@@ -1,0 +1,13 @@
+<div class="register-container">
+    <form class="register-form" [formGroup] = "registerForm" (ngSubmit)="register()">
+        <h1>Register</h1>
+        <label for="email">Email</label>
+        <input class="register-form__input" type="text" placeholder="Email" formControlName="email" [ngClass]="emailValidator() ? 'register-form__input--error' : ''">
+        <label for="username">Username</label>
+        <input class="register-form__input" type="text" placeholder="Username" formControlName="username" [ngClass]="usernameValidator() ? 'register-form__input--error' : ''">
+        <label for="password">Password</label>
+        <input class="register-form__input" type="password" placeholder="Password" formControlName="password" [ngClass]="passwordValidator() ? 'register-form__input--error' : ''">
+        <button type="submit" class="btn btn-primary">Register</button>
+        <a href="" >Login</a>
+    </form>
+</div>

@@ -5,7 +5,7 @@
     font-family: 'DM Sans', sans-serif;
 }
 
-.login-container {
+.register-container {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -13,7 +13,7 @@
     height: 100%;
 }
 
-.login-form {
+.register-form {
     background: rgba($color: #fff, $alpha: 0.8);
     display: flex;
     flex-direction: column;
@@ -52,7 +52,7 @@
     }
 }
 
-.login-form__input {
+.register-form__input {
     height: 35px;
     padding: 5px;
     border: 1px solid rgba($color: #000, $alpha: 0.2);
@@ -62,12 +62,12 @@
     }
 }
 
-.login-form__input--error {
+.register-form__input--error {
     border: 1px solid red;
 }
 
 @media screen and (max-width: 420px){
-    .login-form {
+    .register-form {
         width: 90%;
     }
 }
